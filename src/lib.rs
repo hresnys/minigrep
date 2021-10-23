@@ -15,12 +15,28 @@ impl Config {
             return Err("not enough arguments");
         }
 
-        let query = args[1].clone();
-        let filename = args[2].clone();
+        let config = match args.len() {
+            4 =>{ 
+                let case_sensitive = 
+                    if env::var("CASE_INSENSITIVE").is_err() {
+                        !args[1].contains("-i") 
+                    } else {
+                        false
+                    };
+                let query = args[2].clone();
+                let filename = args[3].clone(); 
+                Config {query, filename, case_sensitive}
+            },
 
-        let case_sensitive = env::var("CASE_INSENSITIVE").is_err();
+            _ => {
+                let query = args[1].clone();
+                let filename = args[2].clone(); 
+                let case_sensitive = env::var("CASE_INSENSITIVE").is_err();
+                Config {query, filename, case_sensitive}
+            },         
+        };
 
-        Ok(Config {query, filename, case_sensitive})
+        Ok(config)
     }
 }
 
@@ -76,10 +92,6 @@ mod test {
     #[test]
     fn case_sensitive() {
         let query = "duct";
-// Rust
-// 安全かつ高速で生産的
-// 三つを選んで
-// ガムテープ
         let contents = "\
 Rust:
 safe, fast, productive.
@@ -95,8 +107,6 @@ Duct tape.";
     #[test]
     fn case_insensitive() {
         let query = "rUsT";
-// (最後の行のみ)
-// 私を信じて
         let contents = "\
 Rust:
 safe, fast, productive.
