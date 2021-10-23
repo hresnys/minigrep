@@ -1,7 +1,9 @@
+extern crate minigrep;
+
 use std::env;
-use std::fs::File;
-use std::io::prelude::*;
 use std::process;
+
+use minigrep::Config;
 
 fn main() {
     let args: Vec<String> = env::args().collect(); 
@@ -14,10 +16,13 @@ fn main() {
         process::exit(1);
     });
 
-    println!("Searching for {}", config.query);
-    println!("In file {}", config.filename);
+    // println!("Searching for {}", config.query);
+    // println!("In file {}", config.filename);
 
-    run(config);
+    if let Err(e) = minigrep::run(config) {
+        println!("Application error! {}", e);
+        process::exit(1);
+    }
 
     // let mut f = File::open(config.filename).expect("file not found");
 
@@ -26,34 +31,6 @@ fn main() {
     //     .expect("something went wrong reading the file");
 
     // println!("With text:\n{}", contents);
-}
-
-fn run (config: Config) {
-    let mut f = File::open(config.filename).expect("file not found");
-
-    let mut contents = String::new();
-    f.read_to_string(&mut contents)
-        .expect("something went wrong reading the file");
-
-    println!("With text:\n{}", contents);
-}
-
-struct Config {
-    query: String,
-    filename: String
-}
-
-impl Config {
-    fn new(args: &[String]) -> Result<Config, &'static str> {
-        if args.len() < 3 {
-            return Err("not enough arguments");
-        }
-
-        let query = args[1].clone();
-        let filename = args[2].clone();
-
-        Ok(Config {query, filename})
-    }
 }
 
 // fn parse_config(args: &[String]) -> Config {
